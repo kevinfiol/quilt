@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>image quilt</title>
+<style>
+  :root { --gap: 0px; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #000;
+  }
+
+  body {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    grid-template-rows: repeat(var(--rows), 1fr);
+    gap: var(--gap);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .tile {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #111;
+  }
+
+  .tile img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    background: #000;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+    -moz-user-select: none;
+  }
+
+  /* small fade for swaps */
+  .fade-in {
+    animation: fadein .22s ease both;
+  }
+  @keyframes fadein {
+    from { opacity: 0; transform: scale(1.01); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .empty {
+    color: #fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    width:100vw;
+    font-family: sans-serif;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+<script>
+(async () => {
+  // CONFIG: change these if you want a different fixed grid
+  const COLS = {%& COLUMNS %};
+  const ROWS = {%& ROWS %};
+  const TILE_COUNT = COLS * ROWS;
+  const SWAP_INTERVAL_MS = {%& INTERVAL %} * 1000; // fixed 1 second per your request
+
+  const getRandom = (n) => Math.floor(Math.random() * n);
+
+  document.documentElement.style.setProperty('--cols', String(COLS));
+  document.documentElement.style.setProperty('--rows', String(ROWS));
+
+  let images = [];
+  let seenImages = [];
+
+  // Fetch image list from backend
+  try {
+    const r = await fetch('/images');
+    const json = await r.json();
+    images = json.images;
+    if (!Array.isArray(images)) images = [];
+  } catch (e) {
+    console.error('Failed to fetch /images', e);
+    images = [];
+  }
+
+  // if no images, show error screen, and end execution
+  if (images.length === 0) {
+    document.body.innerHTML = '<div class="empty">No images found in the configured folder.</div>';
+    return;
+  }
+
+  function getImage() {
+    if (images.length === 0) {
+      images = seenImages;
+      seenImages = [];
+    }
+
+    const idx = getRandom(images.length);
+    const [imagePath] = images.splice(idx, 1); // inefficient, but whatever
+    seenImages.push(imagePath);
+    return imagePath;
+  }
+
+  // Build the initial fixed tiles
+  const tiles = [];
+  for (let i = 0; i < TILE_COUNT; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+
+    const img = document.createElement('img');
+    img.draggable = false;
+
+    const imagePath = getImage();
+    img.dataset.src = imagePath;
+    img.src = imagePath;
+    img.alt = '';
+
+    tile.appendChild(img);
+    document.body.appendChild(tile);
+    tiles.push({ tile, img, swapped: false });
+  }
+
+  // swap logic
+  let tilesSwapped = 0;
+  function preloadAndSwap(tileObj) {
+    tileObj.swapped = true;
+    tilesSwapped += 1;
+    const current = tileObj.img.dataset.src;
+    const next = getImage();
+
+    const pre = new Image();
+    pre.onload = () => {
+      // update the dataset then set src; add small fade
+      tileObj.img.dataset.src = next;
+      tileObj.img.classList.remove('fade-in'); // restart animation
+      void tileObj.img.offsetWidth; // reflow to ensure animation restarts
+      tileObj.img.src = next;
+      tileObj.img.classList.add('fade-in');
+    };
+
+    pre.onerror = () => {
+      // if preload fails, we don't swap
+      console.warn('Preload failed for', next);
+    };
+
+    pre.src = next;
+  }
+
+  // replace a random tile every SWAP_INTERVAL_MS
+  setInterval(() => {
+    if (tilesSwapped >= TILE_COUNT) {
+      tilesSwapped = 0;
+      for (tile of tiles) {
+        tile.swapped = false;
+      }
+    }
+
+    let idx;
+    do {
+      idx = getRandom(tiles.length);
+    } while (tiles[idx].swapped)
+
+    preloadAndSwap(tiles[idx]);
+  }, SWAP_INTERVAL_MS);
+})();
+</script>
+</body>
+</html>
