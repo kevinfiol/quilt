@@ -34,7 +34,8 @@
     background: #111;
   }
 
-  .tile img {
+  .tile img,
+  .tile video {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -46,7 +47,8 @@
     opacity: 1;
   }
 
-  .tile img.fade-out {
+  .tile img.fade-out,
+  .tile video.fade-out {
     z-index: 9999;
     transition: opacity 2s ease;
     opacity: 0;
@@ -74,6 +76,25 @@
   const SWAP_INTERVAL_MS = {%& INTERVAL %} * 1000; // fixed 1 second per your request
 
   const getRandom = (n) => Math.floor(Math.random() * n);
+
+  function createMediaElement(src) {
+    const ext = src.split('.').pop().toLowerCase();
+    if (['mp4', 'mkv', 'webm'].includes(ext)) {
+      const vid = document.createElement('video');
+      vid.src = src;
+      vid.autoplay = true;
+      vid.loop = true;
+      // vid.muted = true;
+      vid.playsInline = true;
+      return vid;
+    } else {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.draggable = false;
+      return img;
+    }
+  }
 
   document.documentElement.style.setProperty('--cols', String(COLS));
   document.documentElement.style.setProperty('--rows', String(ROWS));
@@ -113,52 +134,49 @@
   // Build the initial fixed tiles
   const tiles = [];
   for (let i = 0; i < TILE_COUNT; i++) {
-    const tile = document.createElement('div');
-    tile.className = 'tile';
-
-    const img = document.createElement('img');
-    img.draggable = false;
+    const container = document.createElement('div');
+    container.className = 'tile';
 
     const imagePath = getImage();
-    img.src = imagePath;
-    img.alt = '';
+    const img = createMediaElement(imagePath);
 
-    tile.appendChild(img);
-    document.body.appendChild(tile);
-    tiles.push({ tile, img, swapped: false });
+    container.appendChild(img);
+    document.body.appendChild(container);
+    tiles.push({ container, img, swapped: false });
   }
 
   // swap logic
+  function doSwap(tile, newEl) {
+    const oldEl = tile.img;
+    tile.container.appendChild(newEl);
+
+    oldEl.classList.add('fade-out');
+    oldEl.addEventListener('transitionend', () => oldEl.remove(), { once: true });
+
+    tile.img = newEl;
+  }
+
   let tilesSwapped = 0;
-  function preloadAndSwap(tileObj) {
-    tileObj.swapped = true;
+  function preloadAndSwap(tile) {
+    tile.swapped = true;
     tilesSwapped += 1;
 
     const next = getImage();
-    const pre = new Image();
+    // const pre = new Image();
+    const newEl = createMediaElement(next);
 
-    pre.onload = () => {
-      const newImg = document.createElement('img');
-      newImg.src = next;
+    if (newEl.tagName === 'VIDEO') {
+      doSwap(tile, newEl);
+    } else {
+      const pre = new Image();
 
-      // start to fade out old, then remove it
-      const oldImg = tileObj.img;
-      oldImg.classList.add('fade-out');
-      setTimeout(() => oldImg.remove(), 2000); // matches CSS opacity transition
+      pre.onload = () => {
+        doSwap(tile, newEl);
+      };
 
-      // insert under old one
-      tileObj.tile.appendChild(newImg);
-      void newImg.offsetWidth;
-
-      // update reference
-      tileObj.img = newImg;
-    };
-
-    pre.onerror = () => {
-      console.warn('Preload failed for', next);
-    };
-
-    pre.src = next;
+      pre.onerror = () => console.warn('Preload failed for', next);
+      pre.src = next;
+    }
   }
 
   // replace a random tile every SWAP_INTERVAL_MS

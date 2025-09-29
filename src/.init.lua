@@ -11,6 +11,7 @@ local IMAGE_DIR = ''
 local ROWS = 3
 local COLUMNS = 4
 local INTERVAL = 2
+local VIDEO_RATE=15
 
 for _, v in ipairs(arg) do
   local match
@@ -75,6 +76,10 @@ moon.get('/images', function (r)
 end)
 
 for _, v in ipairs(util.IMAGE_EXTENSIONS) do
+  moon.get('/*.' .. v, moon.serveAsset)
+end
+
+for _, v in ipairs(util.VIDEO_EXTENSIONS) do
   moon.get('/*.' .. v, moon.serveAsset)
 end
 
