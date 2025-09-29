@@ -99,22 +99,21 @@
   document.documentElement.style.setProperty('--cols', String(COLS));
   document.documentElement.style.setProperty('--rows', String(ROWS));
 
-  let images = [];
-  let seenImages = [];
+  let images = {};
+  let seenImages = {};
 
   // Fetch image list from backend
   try {
     const r = await fetch('/images');
     const json = await r.json();
     images = json.images;
-    if (!Array.isArray(images)) images = [];
   } catch (e) {
     console.error('Failed to fetch /images', e);
-    images = [];
+    images = {};
   }
 
   // if no images, show error screen, and end execution
-  if (images.length === 0) {
+  if (!images || typeof images !== 'object') {
     document.body.innerHTML = '<div class="empty">No images found in the configured folder.</div>';
     return;
   }

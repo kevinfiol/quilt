@@ -28,6 +28,7 @@ local function getImages(dir, images, current_path)
 
   images = images or {}
   current_path = current_path or ''
+  images[dir] = {}
 
   for name, kind in assert(unix.opendir(dir)) do
     local ext = getExt(name)
@@ -40,10 +41,10 @@ local function getImages(dir, images, current_path)
 
       if kind == unix.DT_REG and (is_image or is_video) then
         if is_image then
-          table.insert(images, rel_path)
+          table.insert(images[dir], rel_path)
         elseif is_video then
           for i = 1, math.max(VIDEO_RATE, 0) do
-            table.insert(images, rel_path)
+            table.insert(images[dir], rel_path)
           end
         end
       elseif kind == unix.DT_DIR then

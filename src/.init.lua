@@ -71,7 +71,16 @@ moon.get('/', function (r)
 end)
 
 moon.get('/images', function (r)
-  local images = util.getImages(IMAGE_DIR)
+  local result = util.getImages(IMAGE_DIR)
+
+  -- filter out empty directories
+  local images = {}
+  for k, v in pairs(result) do
+    if #v > 0 then
+      images[k] = v
+    end
+  end
+
   return moon.serveContent('json', { images = images })
 end)
 
