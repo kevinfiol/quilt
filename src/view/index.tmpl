@@ -43,17 +43,13 @@
     background: #000;
     display: block;
     user-select: none;
-    -webkit-user-drag: none;
-    -moz-user-select: none;
+    opacity: 1;
   }
 
-  /* small fade for swaps */
-  .fade-in {
-    animation: fadein .22s ease both;
-  }
-  @keyframes fadein {
-    from { opacity: 0; transform: scale(1.01); }
-    to   { opacity: 1; transform: scale(1); }
+  .tile img.fade-out {
+    z-index: 9999;
+    transition: opacity 2s ease;
+    opacity: 0;
   }
 
   .empty {
@@ -124,7 +120,6 @@
     img.draggable = false;
 
     const imagePath = getImage();
-    img.dataset.src = imagePath;
     img.src = imagePath;
     img.alt = '';
 
@@ -138,21 +133,28 @@
   function preloadAndSwap(tileObj) {
     tileObj.swapped = true;
     tilesSwapped += 1;
-    const current = tileObj.img.dataset.src;
-    const next = getImage();
 
+    const next = getImage();
     const pre = new Image();
+
     pre.onload = () => {
-      // update the dataset then set src; add small fade
-      tileObj.img.dataset.src = next;
-      tileObj.img.classList.remove('fade-in'); // restart animation
-      void tileObj.img.offsetWidth; // reflow to ensure animation restarts
-      tileObj.img.src = next;
-      tileObj.img.classList.add('fade-in');
+      const newImg = document.createElement('img');
+      newImg.src = next;
+
+      // start to fade out old, then remove it
+      const oldImg = tileObj.img;
+      oldImg.classList.add('fade-out');
+      setTimeout(() => oldImg.remove(), 2000); // matches CSS opacity transition
+
+      // insert under old one
+      tileObj.tile.appendChild(newImg);
+      void newImg.offsetWidth;
+
+      // update reference
+      tileObj.img = newImg;
     };
 
     pre.onerror = () => {
-      // if preload fails, we don't swap
       console.warn('Preload failed for', next);
     };
 
