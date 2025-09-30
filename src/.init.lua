@@ -11,7 +11,7 @@ local IMAGE_DIR = ''
 local ROWS = 3
 local COLUMNS = 4
 local INTERVAL = 2
-local VIDEO_RATE=15
+local VIDEO_RATE=1
 
 for _, v in ipairs(arg) do
   local match
