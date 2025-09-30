@@ -10,6 +10,7 @@ Make sure `quilt.com` is executable:
 # Make sure quilt.com is executable
 chmod +x quilt.com
 
+# Run on port 8082
 quilt.com -p 8082 /home/kevin/Pictures/italy_vacation --interval=3 --rows=5 --columns=3 --video-rate
 ```
 
