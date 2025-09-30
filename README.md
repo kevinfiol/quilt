@@ -2,6 +2,10 @@
 
 A tiled slideshow application. Built with [redbean.dev](https://redbean.dev), which means the whole application is deployed as a single <6MB file 🤏.
 
+<video src="https://github.com/user-attachments/assets/0929765f-b850-4eb1-b661-27b42b2d3e3b" autoplay="true" controls="false"></video>
+
+**Images in video by [haggle](@idarzikfth.bsky.social‬).**
+
 ## Usage
 
 Make sure `quilt.com` is executable:
