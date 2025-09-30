@@ -22,7 +22,7 @@ Options:
 * `--interval` - How often (in seconds) should a new image be loaded (defaults to 2s)
 * `--rows` - How many rows to display (Defaults to 3)
 * `--columns` - How many columns to display (Defaults to 4)
-* `--video-rate` - How often to load videos (Defaults to 1; set to 0 to display videos)
+* `--video-rate` - At what rate to load videos (Defaults to `1` for 1x; set to 0 to disable videos)
 
 ## Development
 
