@@ -39,3 +39,11 @@ make run
 # or start service and watch for changes
 make watch
 ```
+
+## TODO
+
+* [ ] allow for relative paths
+* [ ] allow for multiple dirs
+* [ ] use a proper args parser
+* [ ] customize image aspect ratio via arg
+* [ ] proper gui
