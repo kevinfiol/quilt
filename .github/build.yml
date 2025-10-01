@@ -1,0 +1,44 @@
+name: build quilt
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write  # This is needed for creating releases
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y zip make curl
+
+      - name: build application
+        run: |
+          make download
+          make build
+
+      - name: get short commit hash
+        id: get_hash
+        run: echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: release-${{ steps.get_hash.outputs.commit_hash }}
+          name: ${{ steps.get_hash.outputs.commit_hash }}
+          files: build/quilt.com
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
