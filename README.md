@@ -8,7 +8,7 @@ A tiled slideshow application. Built with [redbean.dev](https://redbean.dev), wh
 
 ## Usage
 
-Make sure `quilt.com` is executable:
+Note: see [redbean.dev/#linux](https://redbean.dev/#linux) if running on Linux.
 
 ```bash
 # Make sure quilt.com is executable
