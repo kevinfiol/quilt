@@ -1,4 +1,4 @@
-vendor/*
+vendor/*.com
 build/*.com
 build/*.pid
 build/data/*
