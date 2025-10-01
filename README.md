@@ -8,7 +8,7 @@ A tiled slideshow application. Built with [redbean.dev](https://redbean.dev), wh
 
 ## Usage
 
-Download latest release from [Releases](https://github.com/kevinfiol/quilt/releases)
+Download latest release from [Releases](https://github.com/kevinfiol/quilt/releases).
 
 *Note: see [redbean.dev/#linux](https://redbean.dev/#linux) if running on Linux.*
 
