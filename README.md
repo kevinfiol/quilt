@@ -8,7 +8,9 @@ A tiled slideshow application. Built with [redbean.dev](https://redbean.dev), wh
 
 ## Usage
 
-Note: see [redbean.dev/#linux](https://redbean.dev/#linux) if running on Linux.
+Download latest release from [Releases](https://github.com/kevinfiol/quilt/releases)
+
+*Note: see [redbean.dev/#linux](https://redbean.dev/#linux) if running on Linux.*
 
 ```bash
 # Make sure quilt.com is executable
@@ -51,3 +53,4 @@ make watch
 * [ ] use a proper args parser
 * [ ] customize image aspect ratio via arg
 * [ ] proper gui
+* [ ] the way file paths are loaded is inefficient; can be optimized there
